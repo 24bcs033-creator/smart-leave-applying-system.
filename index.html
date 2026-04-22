@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Leave Applying System</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body{
+      font-family:Arial;   
+      text-align:center;
+      background:linear-gradient(to right,#9c07f3,#f88dfa,#cd5ffc,#fa4beb);
+      margin:0;
+      padding:10px;
+      color:rgb(11, 11, 11);
+    }
+
+    .title{
+      font-size:30px;
+      font-weight:bold;
+      color:white;
+      text-shadow:
+        0 0 6px #ffffff,
+        0 0 12px #b97af9,
+        0 0 20px #e66ffb;
+    }
+
+    .college{
+      font-size:25px;
+      font-weight:bold;
+      margin-top:5px;
+      margin-bottom:20px;
+      color:rgb(13, 0, 17);
+    }
+
+    input,select,button{
+      padding:8px;
+      margin:4px;
+      width:260px;
+      border:none;
+      border-radius:6px;
+    }
+
+    button{
+      width:180px;
+      cursor:pointer;
+    }
+
+    .row{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:10px;
+    }
+
+    .label{
+      width:220px;
+      text-align:right;
+      font-weight:bold;
+      color:black;
+    }
+
+    #output{
+      display:none;
+      font-weight:bold;
+      background:rgb(225, 155, 242);
+      color:black;
+      padding:15px;
+      border-radius:10px;
+      margin-top:10px;
+      white-space:pre-line;
+      width:85%;
+      margin:auto;
+      text-align:left;
+      font-family:monospace;
+      line-height:1.6;
+    }
+
+    canvas{
+      width:200px !important;
+      height:150px !important;
+      background:white;
+      border-radius:8px;
+    }
+
+    .att-container{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:20px;
+      flex-wrap:wrap;
+      margin-top:15px;
+    }
+
+    #attBox{
+      font-size:15px;
+      color:black;
+      background:rgba(255,255,255,0.6);
+      padding:10px;
+      border-radius:10px;
+      min-width:250px;
+      text-align:left;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="title">✨ SMART LEAVE APPLYING SYSTEM ✨</div><br>
+<div class="college">SREE SARASWATHI THYAGARAJA COLLEGE</div>
+
+<br>
+
+<input id="name" placeholder="Student Name"><br>
+<input id="regno" placeholder="Register Number"><br>
+<input id="dept" placeholder="Department"><br>
+<input id="email" placeholder="Receiver Email"><br>
+<input id="phone" placeholder="Student Phone Number"><br>
+
+<div class="row">
+  <div class="label">From Date:</div>
+  <input type="date" id="fromDate">
+</div>
+
+<div class="row">
+  <div class="label">To Date:</div>
+  <input type="date" id="toDate">
+</div>
+
+<select id="reason">
+<option value="">Select Reason</option>
+<option value="medical issue">Medical issue 🤒</option>
+<option value="high fever">High fever 🥵</option>
+<option value="hospital admission">Hospital admission 🏥</option>
+<option value="accident or injury">Accident / injury ⚠️</option>
+<option value="severe headache">Severe headache 🤕</option>
+<option value="food poisoning">Food poisoning 🤢</option>
+<option value="family emergency">Family emergency 👨‍👩‍👧</option>
+<option value="death in family">Death in family 😢</option>
+<option value="travel delay">Travel delay 🚗</option>
+<option value="vehicle breakdown">Vehicle breakdown 🔧</option>
+<option value="exam stress and health issue">study purpose 📚</option>
+<option value="mental stress">Mental stress 🧠</option>
+<option value="personal urgent work">Personal urgent work ⚡</option>
+<option value="weather issues">Weather issues 🌧️</option>
+<option value="family function">Function / family event 🎉</option>
+<option value="other">Other</option>
+</select>
+
+<input id="other" placeholder="Enter reason" style="display:none">
+
+<hr>
+
+<div class="row">
+  <div class="label">Total Days In Current Semester:</div>
+  <input id="total" value="90">
+</div>
+
+<div class="row">
+  <div class="label">Total Leave Taken Days:</div>
+  <input id="leave">
+</div>
+
+<br>
+
+<button onclick="generate()">Generate Letter</button>
+<button onclick="status()">Attendance Status</button>
+<button onclick="wa()">WhatsApp</button>
+<button onclick="mail()">Email</button>
+<button onclick="pdf()">PDF</button>
+
+<div class="att-container">
+  <div id="attBox"></div>
+  <canvas id="chart"></canvas>
+</div>
+
+<pre id="output"></pre>
+
+</div>
+<script>
+
+let text="";
+let final="";
+
+/* FIX: reason function */
+function getReasonSentence(reason){
+  return reason;
+}
+
+document.getElementById("reason").onchange=function(){
+  document.getElementById("other").style.display =
+  this.value=="other"?"block":"none";
+}
+
+function generate(){
+
+let name=document.getElementById("name").value;
+let reg=document.getElementById("regno").value;
+let dept=document.getElementById("dept").value;
+let from=document.getElementById("fromDate").value;
+let to=document.getElementById("toDate").value;
+let reason=document.getElementById("reason").value;
+let other=document.getElementById("other").value;
+
+if(!name||!reg||!dept||!from||!to||!reason){
+alert("Fill all fields");
+return;
+}
+
+if(reason=="other") reason=other;
+
+let today=new Date().toLocaleDateString();
+
+text=
+`Date: ${today}
+
+From:
+${name}
+${reg}
+${dept}
+SREE SARASWATHI THYAGARAJA COLLEGE
+POLLACHI
+
+To:
+THE HEAD OF THE DEPARTMENT
+${dept}
+SREE SARASWATHI THYAGARAJA COLLEGE
+POLLACHI
+
+Subject: Request for Leave
+
+Respected Sir/Madam,
+
+I am unable to attend the classes due to ${getReasonSentence(reason)}.
+
+So Please Grant Me Leave For Mentioned Date ${from} to ${to} 
+
+Thank you
+
+Yours Obediently,
+${name}`;
+
+final = text;
+
+document.getElementById("output").style.display="block";
+document.getElementById("output").innerText=final;
+}
+
+function status(){
+
+let t=+document.getElementById("total").value;
+let l=+document.getElementById("leave").value;
+
+let p=t-l;
+let per=(p/t*100).toFixed(1);
+
+let attText=
+`📊 Attendance Details
+
+Total Days: ${t}
+Leave Days: ${l}
+Present Days: ${p}
+Attendance: ${per}%`;
+
+document.getElementById("attBox").innerText=attText;
+
+/* IMPORTANT FIX */
+final += "\n\n" + attText;
+
+new Chart(document.getElementById("chart"),{
+type:"bar",
+data:{
+labels:["Total","Leave","Present"],
+datasets:[{
+data:[t,l,p],
+backgroundColor:["#4CAF50","#FF5252","#2196F3"],
+borderColor:"#000",
+borderWidth:1
+}]
+}
+});
+}
+
+function wa(){
+window.open("https://wa.me/?text="+encodeURIComponent(final));
+}
+
+function mail(){
+
+let email=document.getElementById("email").value;
+if(!email){alert("Enter email");return;}
+
+window.open(
+`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=Leave Request&body=${encodeURIComponent(final)}`
+);
+}
+
+function pdf(){
+let w=window.open("");
+w.document.write("<pre>"+final+"</pre>");
+w.print();
+}
+function pdf(){
+  let w=window.open("");
+  w.document.write("<pre>"+final+"</pre>");
+  w.print();
+}
+
+</script>
+
+</body>
+</html>
